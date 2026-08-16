@@ -28,8 +28,7 @@ def get_transportation_recommendation(category):
         return "Flight"
 
 recommended_places = [
-        "shibuya", 
-        "tokyo tower",
-        "tokyo", 
-        "akihabara"
+        'Tokyo Tower',
+        'Mount Fuji',
+        'Shibuya'
     ]
