@@ -101,9 +101,9 @@ export default function Home() {
   }
 
   return (
- <div className='min-h-screen flex flex-col bg-sky-300 dark:bg-gray-900'>
-  <div className='flex-grow flex items-center justify-center p-4'>
-      <main className='bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md text-center'>
+ <div className='min-h-screen flex flex-col'>
+  <div className='flex-grow flex items-center justify-center p-4 bg-orange-100'>
+      <main className='bg-white/80 backdrop-blur-md border border-white/50 p-8 rounded-2xl shadow-xl w-full max-w-md text-center'>
         <div className='w-full h-48 md:h-64 relative mb-6 rounded-1 overflow-hidden shadow-sm'>
         <Image
           src="/japan.jpeg"
@@ -113,16 +113,16 @@ export default function Home() {
           priority
         />
         </div>
-        <h1 className='text-4xl font-extrabold text-sky-600 dark:text-sky-400 mb-2'>
+        <h1 className='text-4xl font-extrabold text-sky-600 mb-2'>
           Kelana AI
         </h1>
-        <p className='text-gray-600 dark:text-gray-300 mb-8 font-medium'>
+        <p className='text-gray-500 mb-8 font-medium'>
           Plan Your Trip With AI
         </p>
 
         <form className='flex flex-col gap-5' onSubmit={handleSubmit}>
           <div className='flex flex-col text-left'>
-            <label htmlFor='destination' className='text-sm font-bold text-gray-700 dark:text-gray-200 mb-1'>
+            <label htmlFor='destination' className='text-sm font-bold text-gray-700 mb-1'>
               Destinasi liburan ke mana?
             </label>
             <input 
@@ -131,13 +131,13 @@ export default function Home() {
               value={form.destination}
               onChange={handleChange}
               placeholder='Contoh: Bali, Jepang, Paris...' 
-              className='border border-gray-300 dark:border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-white transition'
+              className='bg-white text-gray-900 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition'
               required
             />
           </div>
 
           <div className='flex flex-col text-left'>
-            <label htmlFor='budget' className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">
+            <label htmlFor='budget' className="text-sm font-bold text-gray-700 mb-1">
               Berapa Budget yang disediakan? (USD)
             </label>
             <input
@@ -146,13 +146,13 @@ export default function Home() {
               value={form.budget}
               onChange={handleChange}
               placeholder='2000'
-              className='border border-gray-300 dark:border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-white transition'
+              className='bg-white text-gray-900 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition'
               required
             />
           </div>
 
           <div className='flex flex-col text-left'>
-            <label htmlFor='days' className='text-sm font-bold text-gray-700 dark:text-gray-200 mb-1'>
+            <label htmlFor='days' className='text-sm font-bold text-gray-700 mb-1'>
               Rencana Berapa Hari?
             </label>
             <input 
@@ -162,13 +162,13 @@ export default function Home() {
               value={form.days}
               onChange={handleChange} 
               placeholder='5'
-              className='border border-gray-300 dark:border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-white transition'
+              className='bg-white text-gray-900 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition'
               required
             />
           </div>
 
           <div className='flex flex-col text-left'>
-            <label htmlFor='travel_style' className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-1">
+            <label htmlFor='travel_style' className="text-sm font-bold text-gray-700 mb-1">
               Travel Mau Bertemakan Apa?
             </label>
             <input
@@ -177,7 +177,7 @@ export default function Home() {
               value={form.travel_style}
               onChange={handleChange}
               placeholder='Contoh: Cultural, Family.....'
-              className='border border-gray-300 dark:border-gray-600 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 dark:bg-gray-700 dark:text-white transition'
+              className='bg-white text-gray-900 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sky-500 transition'
               required
             />
           </div>
@@ -200,8 +200,8 @@ export default function Home() {
         )}
 
         {result && (
-          <div className="mt-10 w-full text-left">
-            <h2 className="text-2xl font-extrabold text-sky-700 dark:text-sky-300 mb-6 text-center border-b-2 border-sky-200 pb-4">
+          <div className="mt-12 w-full text-left animate-fade-in">
+            <h2 className="text-3xl font-extrabold text-gray-800 border-b-2 border-sky-200 pb-4 mb-8 text-center">
               Rencana Perjalanan Kamu
             </h2>
             
@@ -214,23 +214,23 @@ export default function Home() {
                   // Tampilan Card
                   <div 
                     key={index} 
-                    className="p-6 md:p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-sky-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300"
+                    className="p-6 md:p-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border-l-4 border-l-sky-500 border-y border-r border-gray-100 hover:shadow-xl transition-all duration-300"
                   >
                     <ReactMarkdown
                     // styling markdown agar list tidak disembunyikan
                       components={{
-                        ul: ({node, ...props}) => <ul className="list-disc pl-6 space-y-2 mb-4" {...props} />,
-                        ol: ({node, ...props}) => <ol className="list-decimal pl-6 space-y-2 mb-4" {...props} />,
-                        li: ({node, ...props}) => <li className="text-gray-700 dark:text-gray-300 leading-relaxed" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc pl-6 space-y-2 mb-4 text-gray-700" {...props} />,
+                        ol: ({node, ...props}) => <ol className="list-decimal pl-6 space-y-2 mb-4 text-gray-700" {...props} />,
+                        li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
                         
-                        h1: ({node, ...props}) => <h1 className="text-2xl font-bold text-sky-700 dark:text-sky-400 mt-4 mb-4" {...props} />,
-                        h2: ({node, ...props}) => <h2 className="text-xl font-bold text-sky-700 dark:text-sky-400 mt-4 mb-4" {...props} />,
-                        h3: ({node, ...props}) => <h3 className="text-lg font-bold text-sky-600 dark:text-sky-300 mt-4 mb-3" {...props} />,
-                        h4: ({node, ...props}) => <h4 className="text-base font-bold text-sky-600 dark:text-sky-300 mt-3 mb-2" {...props} />,
+                        h1: ({node, ...props}) => <h1 className="text-2xl font-extrabold text-sky-700 mt-2 mb-4" {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-xl font-bold text-sky-700 mt-2 mb-4" {...props} />,
+                        h3: ({node, ...props}) => <h3 className="text-lg font-bold text-sky-600 mt-4 mb-2" {...props} />,
+                        h4: ({node, ...props}) => <h4 className="text-base font-bold text-sky-600 mt-3 mb-2" {...props} />,
                         
-                        strong: ({node, ...props}) => <strong className="font-bold text-gray-900 dark:text-gray-100" {...props} />,
+                        strong: ({node, ...props}) => <strong className="font-bold text-gray-900" {...props} />,
                         
-                        p: ({node, ...props}) => <p className="mb-4 text-gray-700 dark:text-gray-300 leading-relaxed" {...props} />
+                        p: ({node, ...props}) => <p className="mb-4 text-gray-700 leading-relaxed" {...props} />
                       }}
                     >
                       {dayPlan}
