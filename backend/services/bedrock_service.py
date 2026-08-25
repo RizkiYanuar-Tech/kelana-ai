@@ -16,13 +16,16 @@ def get_ai_recommendation(days, destination, budget, travel_style):
         f"Budget: USD {budget}\n"
         f"Travel Style: {travel_style}\n\n"
         f"For EACH day, structure the recommendation using EXACTLY this format:\n"
-        f"- 2-3 Morning Activities\n"
+        f"Give at least 2-3 activities each:"
+        f"- Morning Activities\n"
         f"- Afternoon: Culture site or local experience\n"
         f"- Dinner spot suggestion and nightlife option\n"
         f"- Local food recommendation for that day\n"
         f"- Transport suggestion for that day, based on the estimated daily budget\n\n"
+        f"Give travel tips section on every day"
         f"Also include the estimated daily budget at the top of each day's section.\n"
         f"Use bullet points for every list of suggestions."
+        f"GIVE BOLD Font for Every Section"
     )
 
     client = boto3.client(
