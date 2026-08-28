@@ -10,6 +10,7 @@ from .services.bedrock_service import get_ai_recommendation
 from .models.trip import Trip
 from .database import SessionLocal, init_db
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 class TripUpdateRequest(BaseModel):
     budget: float
@@ -25,15 +26,11 @@ app = FastAPI()
 init_db()
 
 # Allow Next.js to Communicate with fastAPI
-origins = [
-    'http://localhost:3000',
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = origins,
+    allow_origins = os.getenv("FRONTEND_URL", "http://localhost:3000"),
     allow_credentials=True,
-    allow_methods=['POST'],
+    allow_methods=['*'],
     allow_headers=['*']
 )
 

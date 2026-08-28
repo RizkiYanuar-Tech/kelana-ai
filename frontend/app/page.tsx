@@ -3,6 +3,8 @@
 import Image from "next/image";
 import ReactMarkdown from 'react-markdown';
 import {useState} from "react";
+import { useRouter } from 'next/navigation';
+import Navbar from '@/components/navbar';
 
 export default function Home() {
   // Simpan input pengguna
@@ -16,6 +18,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string | (null)>(null);
   const [error, setError] = useState<string | (null)>(null);
+  const router = useRouter();
 
   // Handle Perubahan input
   const handleChange = (e) => {
@@ -64,7 +67,7 @@ export default function Home() {
       }
 
       const generateTrip = await TripPlan.json()
-      setResult(generateTrip.recommendation);
+      router.push('/trips');
     
     } catch(error){
       console.error(error);
@@ -101,7 +104,10 @@ export default function Home() {
   }
 
   return (
- <div className='min-h-screen flex flex-col'>
+ <div className='min-h-screen flex flex-col bg-orange-100'>
+  <div className="md:absolute md:right-5 mt-5">
+    <Navbar />
+  </div>
   <div className='flex-grow flex items-center justify-center p-4 bg-orange-100'>
       <main className='bg-white/80 backdrop-blur-md border border-white/50 p-8 rounded-2xl shadow-xl w-full max-w-md text-center'>
         <div className='w-full h-48 md:h-64 relative mb-6 rounded-1 overflow-hidden shadow-sm'>
@@ -196,48 +202,6 @@ export default function Home() {
         {error && (
           <div className='mt-8 p-4 bg-red-100 text-red-700 rounded-lg w-full text-left'>
             <p>{error}</p>
-          </div>
-        )}
-
-        {result && (
-          <div className="mt-12 w-full text-left animate-fade-in">
-            <h2 className="text-3xl font-extrabold text-gray-800 border-b-2 border-sky-200 pb-4 mb-8 text-center">
-              Rencana Perjalanan Kamu
-            </h2>
-            
-            {/*Atur Posisi Card */}
-            <div className="flex flex-col gap-8">
-              {result.split(/(?=### Day|## Day|Day \d)/i)
-                .filter((text) => /Day \d/i.test(text))
-                .map((dayPlan, index) => (
-
-                  // Tampilan Card
-                  <div 
-                    key={index} 
-                    className="p-6 md:p-8 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border-l-4 border-l-sky-500 border-y border-r border-gray-100 hover:shadow-xl transition-all duration-300"
-                  >
-                    <ReactMarkdown
-                    // styling markdown agar list tidak disembunyikan
-                      components={{
-                        ul: ({node, ...props}) => <ul className="list-disc pl-6 space-y-2 mb-4 text-gray-700" {...props} />,
-                        ol: ({node, ...props}) => <ol className="list-decimal pl-6 space-y-2 mb-4 text-gray-700" {...props} />,
-                        li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
-                        
-                        h1: ({node, ...props}) => <h1 className="text-2xl font-extrabold text-sky-700 mt-2 mb-4" {...props} />,
-                        h2: ({node, ...props}) => <h2 className="text-xl font-bold text-sky-700 mt-2 mb-4" {...props} />,
-                        h3: ({node, ...props}) => <h3 className="text-lg font-bold text-sky-600 mt-4 mb-2" {...props} />,
-                        h4: ({node, ...props}) => <h4 className="text-base font-bold text-sky-600 mt-3 mb-2" {...props} />,
-                        
-                        strong: ({node, ...props}) => <strong className="font-bold text-gray-900" {...props} />,
-                        
-                        p: ({node, ...props}) => <p className="mb-4 text-gray-700 leading-relaxed" {...props} />
-                      }}
-                    >
-                      {dayPlan}
-                    </ReactMarkdown>
-                  </div>
-              ))}
-            </div>
           </div>
         )}
       </main>
