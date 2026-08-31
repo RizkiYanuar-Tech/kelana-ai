@@ -5,15 +5,21 @@ import Navbar from '@/components/navbar';
 import Pagination from '@/components/pagination';
 
 export default async function TripsPage({searchParams}: {searchParams: {page?: string} }){
-    const trips = await getTrips()
+    // 1. Ambil data asli dari service
+    const rawResponse = await getTrips();
     
+    // 2. Pastikan data berbentuk array. Jika tidak, gunakan array kosong sebagai cadangan.
+    const trips = Array.isArray(rawResponse) ? rawResponse : [];
+
     const resolvedParams = await searchParams;
     const currentPage = parseInt(resolvedParams.page || '1', 10);
     const items_per_page = 5;
 
+    // 3. Karena 'trips' sekarang dipastikan berupa array, penghitungan ini menjadi aman
     const totalPages = Math.ceil(trips.length / items_per_page);
     const startIndex = (currentPage - 1) * items_per_page;
     const currentTrips = trips.slice(startIndex, startIndex + items_per_page);
+    
     return (
         <div className="min-h-screen bg-sky-50 p-8 flex flex-col">
             <div className='relative flex flex-col md:flex-row md:justify-center items-center mb-8 gap-6 w-full'>

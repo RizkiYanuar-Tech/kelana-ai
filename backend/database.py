@@ -1,6 +1,11 @@
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+
+Base = declarative_base()
+
+from backend.models import user
+from backend.models import trip
 import os
 from pathlib import Path
 
@@ -16,8 +21,6 @@ engine = create_engine(DATABASE_URL)
 
 # Create session database
 SessionLocal = sessionmaker(bind=engine, autoflush=False)
-
-Base = declarative_base()
 
 # Create Tables
 def init_db() -> None:

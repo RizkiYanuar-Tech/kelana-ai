@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter, Depends
 from pydantic import BaseModel
 from .services.trip_service import (
     get_trip_category,
@@ -7,10 +7,21 @@ from .services.trip_service import (
     get_travel_season,
     recommended_places)
 from .services.bedrock_service import get_ai_recommendation
+from .services.auth_service import register, login, get_current_user
+from .models.user import User
 from .models.trip import Trip
 from .database import SessionLocal, init_db
 from fastapi.middleware.cors import CORSMiddleware
 import os
+
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 class TripUpdateRequest(BaseModel):
     budget: float
@@ -80,9 +91,9 @@ def transportations():
     ]
 
 @app.get("/api/v1/trips")
-def list_trips():
+def list_trips(current_user: User = Depends(get_current_user)):
     db = SessionLocal()
-    trips = db.query(Trip).all()
+    trips = db.query(Trip).filter(Trip.user_id == current_user.id).all()
     db.close()
     return trips
 
@@ -97,11 +108,13 @@ def get_trip(trip_id: int):
     return trip
 
 @app.post('/api/v1/trips')
-def create_trip(request: TripRequest):
+def create_trip(request: TripRequest,
+                current_user: User = Depends(get_current_user)):
     daily_budget = calculate_daily_budget(request.budget, request.days)
     category = get_trip_category(request.budget)
 
     trip = Trip(
+        user_id = current_user.id,
         destination = request.destination,
         days = request.days,
         budget = request.budget,
@@ -144,6 +157,54 @@ def generate_trip_recommendation(id: int):
         "destination": trip.destination,
         'recommendation': trip.ai_recommendation
     }
+
+@app.post('/api/v1/auth/register')
+def register_user(request: RegisterRequest):
+    """
+    Endpoint mendaftarkan user baru dengan memanggil SessionLocal
+    """
+    # Memanggil koneksi ke database
+    db = SessionLocal()
+
+    try:
+        new_user = register(
+            db=db,
+            name=request.name,
+            email=request.email,
+            password=request.password
+        )
+
+        return {
+            "message": "Registrasi berhasil dilakukan!",
+            "data": {
+                "name": new_user.name,
+                "email": new_user.email
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Registrasi gagal: {str(e)}")
+    finally:
+        db.close()
+
+@app.post('/api/v1/auth/login')
+def login_user(request: LoginRequest):
+    """
+    Endpoint untuk login dan mendapatkan JWT TOKEN Access
+    """
+    db = SessionLocal()
+
+    try:
+        access_token = login(db=db, email=request.email, password=request.password)
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+        }
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
 
 @app.delete('/api/v1/trips/{id}')
 def delete_trip(id: int):
