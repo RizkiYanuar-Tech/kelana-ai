@@ -1,48 +1,47 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('registered') === 'true') {
-      setSuccessMessage('Registrasi berhasil! Silakan login dengan akun barumu.');
-    }
-  }, []);
-
-  const handleLogin = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('Password dan konfirmasi password tidak sama.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const login_url = `http://127.0.0.1:8000/api/v1/auth/login`;
-      const response = await fetch(login_url, {
+      const register_url = `http://127.0.0.1:8000/api/v1/auth/register`;
+      const response = await fetch(register_url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.detail || 'Gagal login, periksa kembali email dan passwordmu.');
+        throw new Error(data.detail || 'Registrasi gagal, coba lagi.');
       }
 
-      localStorage.setItem('token', data.access_token);
-      router.push('/form');
+      router.push('/login?registered=true');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -73,13 +72,22 @@ export default function LoginPage() {
 
       <div className="form-panel">
         <div className="form-card">
-          <h1>Masuk</h1>
-          <p className="subtitle">Lanjutkan rencana perjalananmu di KelanaAI.</p>
+          <h1>Buat akun</h1>
+          <p className="subtitle">Mulai susun rencana perjalananmu dalam beberapa menit.</p>
 
-          {successMessage && <p className="success-text">{successMessage}</p>}
           {error && <p className="error-text">{error}</p>}
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleRegister}>
+            <label htmlFor="name">Nama</label>
+            <input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="Nama lengkap"
+            />
+
             <label htmlFor="email">Email</label>
             <input
               id="email"
@@ -97,16 +105,26 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Password kamu"
+              placeholder="Minimal 8 karakter"
+            />
+
+            <label htmlFor="confirmPassword">Konfirmasi Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="Ulangi password"
             />
 
             <button type="submit" disabled={isLoading}>
-              {isLoading ? 'Memproses...' : 'Login'}
+              {isLoading ? 'Memproses...' : 'Daftar'}
             </button>
           </form>
 
           <p className="switch-text">
-            Belum punya akun? <a href="/register">Daftar di sini</a>
+            Sudah punya akun? <a href="/login">Masuk di sini</a>
           </p>
         </div>
       </div>
@@ -199,12 +217,6 @@ export default function LoginPage() {
           color: #8fa3ae;
           font-size: 14px;
           margin: 0 0 28px;
-        }
-
-        .success-text {
-          color: #7fd9a0;
-          font-size: 14px;
-          margin-bottom: 16px;
         }
 
         .error-text {

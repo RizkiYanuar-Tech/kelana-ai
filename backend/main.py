@@ -98,13 +98,17 @@ def list_trips(current_user: User = Depends(get_current_user)):
     return trips
 
 @app.get("/api/v1/trips/{trip_id}")
-def get_trip(trip_id: int):
+def get_trip(trip_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     trip = db.query(Trip).filter(Trip.id == trip_id).first()
     db.close()
 
     if trip is None:
         raise HTTPException(status_code=404, detail=f"Trip with id {trip_id} not found")
+
+    if trip.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden: Kamu tidak bisa trips user lain")
+    
     return trip
 
 @app.post('/api/v1/trips')
@@ -207,7 +211,7 @@ def login_user(request: LoginRequest):
         db.close()
 
 @app.delete('/api/v1/trips/{id}')
-def delete_trip(id: int):
+def delete_trip(id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     trip = db.query(Trip).filter(Trip.id == id).first()
 
@@ -215,6 +219,9 @@ def delete_trip(id: int):
         db.close()
         raise HTTPException(status_code = 404, detail=f"Trip with id {id} not found")
 
+    if trip.user_id != current_user.id:
+        db.close()
+        raise HTTPException(status_code=403, detail="Forbidden: Kamu tidak boleh hapus trips orang lain")
     db.delete(trip)
     db.commit()
     db.close()
