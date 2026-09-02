@@ -3,34 +3,44 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function Navbar(){
+export default function Navbar() {
     const pathName = usePathname();
 
     return (
         <nav className="flex justify-center z-50 w-full">
-            <div className="flex justify-center gap-4">
-                <Link 
-                    href="/" 
-                    className={`px-6 py-2 rounded-full font-bold transition-all duration-300 ${
-                        pathName === '/' 
-                            ? 'bg-sky-500 text-white shadow-md'
-                            : 'bg-gray-100 text-gray-500 hover:bg-sky-100 hover:text-sky-600'
+            <div className="flex justify-center gap-3 bg-[#11242f] border border-[#23414f] rounded-full p-1.5 shadow-lg">
+                <Link
+                    href="/generate"
+                    className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                        pathName.startsWith('/generate')
+                            ? 'bg-[#e8a33d] text-[#0b1d26] shadow-md'
+                            : 'text-[#8fa3ae] hover:bg-[#16303d] hover:text-[#edeef0]'
                     }`}
                 >
                     Generate Trip
                 </Link>
 
-                <Link 
-                    href="/trips" 
-                    className={`px-6 py-2 rounded-full font-bold transition-all duration-300 ${
-                        pathName.startsWith('/trips') 
-                            ? 'bg-sky-500 text-white shadow-md'
-                            : 'bg-gray-100 text-gray-500 hover:bg-sky-100 hover:text-sky-600'
+                <Link
+                    href="/trips"
+                    className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                        pathName.startsWith('/trips')
+                            ? 'bg-[#e8a33d] text-[#0b1d26] shadow-md'
+                            : 'text-[#8fa3ae] hover:bg-[#16303d] hover:text-[#edeef0]'
                     }`}
                 >
                     Trip History
                 </Link>
 
+                <Link
+                    href="/ask"
+                    className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                        pathName.startsWith('/ask')
+                            ? 'bg-[#e8a33d] text-[#0b1d26] shadow-md'
+                            : 'text-[#8fa3ae] hover:bg-[#16303d] hover:text-[#edeef0]'
+                    }`}
+                >
+                    Ask AI
+                </Link>
             </div>
         </nav>
     );

@@ -11,8 +11,12 @@ from .services.auth_service import register, login, get_current_user
 from .models.user import User
 from .models.trip import Trip
 from .database import SessionLocal, init_db
+from .services.kb_service import ask_knowledge_base
 from fastapi.middleware.cors import CORSMiddleware
 import os
+
+class QuestionRequest(BaseModel):
+    question: str
 
 class RegisterRequest(BaseModel):
     name: str
@@ -247,6 +251,21 @@ def update_trip(trip_id: int, request: TripUpdateRequest):
 
     return trip
 
+@app.post('/api/v1/ask')
+def asking_ai(request: QuestionRequest):
+    """
+    Endpoint bertanya ke LLM Amazon Bedrock Knowledge Base
+    """
+    answer = ask_knowledge_base(request.question)
+
+    if answer is None:
+        answer = "Maaf, saya tidak dapat menemukan jawaban untuk pertanyaan tersebut saat ini."
+
+    return {
+        "question": request.question,
+        "answer": answer
+    }
+    
 # def print_trip_summary(destination, country, days, budget, currency, travel_month):
     # print("="*20)
     # print("KelanaAI")
