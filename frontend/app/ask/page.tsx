@@ -51,10 +51,10 @@ export default function AskPage() {
 
   return (
     <div className="ask-page">
+      <div className="absolute top-6 right-6 z-50">
+        <Navbar />
+      </div>
       <div className="ask-container">
-        <div className="md:absolute md:right-5 mt-5 ml-10">
-            <Navbar />
-        </div>
         <div className="ask-header">
           <span className="brand-name">Kelana AI</span>
           <h1>Tanya seputar rencana perjalananmu</h1>

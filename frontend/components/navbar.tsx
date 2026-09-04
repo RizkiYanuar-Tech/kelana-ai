@@ -10,9 +10,9 @@ export default function Navbar() {
         <nav className="flex justify-center z-50 w-full">
             <div className="flex justify-center gap-3 bg-[#11242f] border border-[#23414f] rounded-full p-1.5 shadow-lg">
                 <Link
-                    href="/generate"
+                    href="/form"
                     className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
-                        pathName.startsWith('/generate')
+                        pathName.startsWith('/form')
                             ? 'bg-[#e8a33d] text-[#0b1d26] shadow-md'
                             : 'text-[#8fa3ae] hover:bg-[#16303d] hover:text-[#edeef0]'
                     }`}
@@ -39,7 +39,17 @@ export default function Navbar() {
                             : 'text-[#8fa3ae] hover:bg-[#16303d] hover:text-[#edeef0]'
                     }`}
                 >
-                    Ask AI
+                    Knowledge AI
+                </Link>
+                <Link
+                    href="/chat"
+                    className={`px-6 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                        pathName.startsWith('/chat')
+                            ? 'bg-[#e8a33d] text-[#0b1d26] shadow-md'
+                            : 'text-[#8fa3ae] hover:bg-[#16303d] hover:text-[#edeef0]'
+                    }`}
+                >
+                    Chat AI
                 </Link>
             </div>
         </nav>

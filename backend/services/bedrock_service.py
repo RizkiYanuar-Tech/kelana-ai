@@ -50,3 +50,40 @@ def get_ai_recommendation(days, destination, budget, travel_style):
 
     except Exception as e:
         return f"Terjadi kesalahan saat menghubungi Bedrock: {e}"
+
+def get_chat_response(messages, system_prompt=None):
+    """
+    Mengirim riwayat percakapan (list of {role, content}) ke AWS Bedrock
+    dan mengembalikan balasan AI. Dipakai oleh endpoint chat (send_message),
+    berbeda dari get_ai_recommendation yang hanya kirim satu prompt sekali jalan.
+    """
+ 
+    client = boto3.client(
+        service_name='bedrock-runtime',
+        region_name=os.getenv('AWS_REGION')
+    )
+ 
+    # Format ulang messages ke struktur yang diminta Bedrock Converse API
+    bedrock_messages = [
+        {
+            "role": m["role"],
+            "content": [{"text": m["content"]}]
+        }
+        for m in messages
+    ]
+ 
+    request_kwargs = {
+        "modelId": os.getenv("MODEL_ID"),
+        "messages": bedrock_messages
+    }
+ 
+    if system_prompt:
+        request_kwargs["system"] = [{"text": system_prompt}]
+ 
+    try:
+        response = client.converse(**request_kwargs)
+        ai_response = response['output']['message']['content'][0]['text']
+        return ai_response
+ 
+    except Exception as e:
+        return f"Terjadi kesalahan saat menghubungi Bedrock: {e}"

@@ -6,6 +6,7 @@ Base = declarative_base()
 
 from backend.models import user
 from backend.models import trip
+from backend.models import conversation
 import os
 from pathlib import Path
 

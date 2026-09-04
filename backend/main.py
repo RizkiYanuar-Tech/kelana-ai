@@ -6,17 +6,41 @@ from .services.trip_service import (
     get_transportation_recommendation,
     get_travel_season,
     recommended_places)
+from datetime import datetime
+from typing import Optional
+from .models.conversation import Conversation
 from .services.bedrock_service import get_ai_recommendation
 from .services.auth_service import register, login, get_current_user
 from .models.user import User
 from .models.trip import Trip
+from .models.conversation import Conversation, Message
+from .services.bedrock_service import get_ai_recommendation, get_chat_response
 from .database import SessionLocal, init_db
 from .services.kb_service import ask_knowledge_base
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
+class ConversationResponse(BaseModel):
+    id: int
+    title: Optional[str]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class MessageOut(BaseModel):
+    role: str
+    content: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class QuestionRequest(BaseModel):
     question: str
+
+class MessageRequest(BaseModel):
+    content: str
 
 class RegisterRequest(BaseModel):
     name: str
@@ -265,6 +289,114 @@ def asking_ai(request: QuestionRequest):
         "question": request.question,
         "answer": answer
     }
+
+@app.post('/api/v1/conversations', status_code=201)
+def create_conversation(current_user: User = Depends(get_current_user)):
+    db = SessionLocal()
+
+    conversation = Conversation(
+        user_id = current_user.id
+    )
+
+    db.add(conversation)
+    db.commit()
+    db.refresh(conversation)
+    db.close()
+
+    return {"conversation_id": conversation.id}
+
+@app.post('/api/v1/conversations/{id}/messages')
+def send_message(id: int, request: MessageRequest, current_user: User = Depends(get_current_user)):
+    """Kirim pesan user, reload history, panggil Bedrock, simpan balasan AI."""
+    db = SessionLocal()
+
+    conversation = db.query(Conversation).filter(Conversation.id == id).first()
+    if conversation is None:
+        db.close()
+        raise HTTPException(status_code=404, detail=f"Conversation with id {id} not found")
+    if conversation.user_id != current_user.id:
+        db.close()
+        raise HTTPException(status_code=403, detail="Forbidden: Kamu tidak boleh akses conversation orang lain")
+
+    user_message = Message(conversation_id=id, role="user", content=request.content)
+    db.add(user_message)
+
+    # Auto-generate title dari pesan pertama
+    if conversation.title is None:
+        conversation.title = request.content[:50]
+
+    db.commit()
+    db.refresh(user_message)
+
+    previous_messages = (
+        db.query(Message)
+        .filter(Message.conversation_id == id)
+        .order_by(Message.created_at.asc())
+        .all()
+    )
+
+    prompt_messages = [{"role": m.role, "content": m.content} for m in previous_messages]
+    ai_response_text = get_chat_response(prompt_messages)
+
+    ai_message = Message(conversation_id=id, role="assistant", content=ai_response_text)
+    db.add(ai_message)
+    db.commit()
+    db.refresh(ai_message)
+    db.refresh(conversation)
+
+    result = {
+        "conversation_id": id,
+        "conversation_title": conversation.title,
+        "user_message": {
+            "role": user_message.role,
+            "content": user_message.content,
+            "created_at": user_message.created_at,
+        },
+        "assistant_message": {
+            "role": ai_message.role,
+            "content": ai_message.content,
+            "created_at": ai_message.created_at,
+        },
+    }
+    db.close()
+    return result
+
+@app.get('/api/v1/conversations/{id}/messages', response_model=list[MessageOut])
+def list_messages(id: int, current_user: User = Depends(get_current_user)):
+    """Reload semua pesan sebelumnya sebelum lanjut chat."""
+    db = SessionLocal()
+    conversation = db.query(Conversation).filter(Conversation.id == id).first()
+
+    if conversation is None:
+        db.close()
+        raise HTTPException(status_code=404, detail=f"Conversation with id {id} not found")
+    if conversation.user_id != current_user.id:
+        db.close()
+        raise HTTPException(status_code=403, detail="Forbidden: Kamu tidak boleh akses conversation orang lain")
+
+    messages = (
+        db.query(Message)
+        .filter(Message.conversation_id == id)
+        .order_by(Message.created_at.asc())
+        .all()
+    )
+    db.close()
+    return messages
+
+@app.get('/api/v1/conversations', response_model=list[ConversationResponse])
+def list_conversation(current_user: User = Depends(get_current_user)):
+    db = SessionLocal()
+
+    conversations = (
+        db.query(Conversation)
+        .filter(Conversation.user_id == current_user.id)
+        .order_by(Conversation.created_at.desc())
+        .all()
+    )
+
+    db.close()
+    return conversations
+
     
 # def print_trip_summary(destination, country, days, budget, currency, travel_month):
     # print("="*20)
